@@ -1,0 +1,3 @@
+[submodule "src/iwr1443"]
+	path = src/iwr1443
+	url = git@github.com:r-bt/iwr1443.git
