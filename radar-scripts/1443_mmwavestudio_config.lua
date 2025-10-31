@@ -3,14 +3,14 @@
 -- Radar Settings (Original)
 -- 3 Tx 4 Rx | complex 1x
 
-COM_PORT = 9
+COM_PORT = 3
 RADARSS_PATH = "C:\\ti\\mmwave_studio_02_01_01_00\\rf_eval_firmware\\radarss\\xwr12xx_xwr14xx_radarss.bin"
 MASTERSS_PATH = "C:\\ti\\mmwave_studio_02_01_01_00\\rf_eval_firmware\\masterss\\xwr12xx_xwr14xx_masterss.bin"
 
 -- Paths to save data to, modify as needed
-SAVE_DATA_PATH = "C:\\Users\\Win WIn Tjong\\Documents\\data\\adc_data.bin"
-DUMP_DATA_PATH = "C:\\Users\\Win WIn Tjong\\Documents\\data\\adc_data_RAW_0.bin"
-PKT_LOG_PATH  = "C:\\Users\\Win WIn Tjong\\Documents\\data\\pktlogfile.txt"
+SAVE_DATA_PATH = "C:\\Users\\mmwave\\Documents\\data\\adc_data.bin"
+DUMP_DATA_PATH = "C:\\Users\\mmwave\\Documents\\data\\adc_data_RAW_0.bin"
+PKT_LOG_PATH  = "C:\\Users\\mmwave\\Documents\\data\\pktlogfile.txt"
 
 --------------------------------------------
 
@@ -88,7 +88,7 @@ ar1.FrameConfig(START_CHIRP_TX, END_CHIRP_TX, NUM_FRAMES, CHIRP_LOOPS, PERIODICI
 
 -------- ETHERNET STUFF --------
 ar1.SelectCaptureDevice("DCA1000")
-ar1.CaptureCardConfig_EthInit("192.168.33.30", "192.168.33.180", "12:34:56:78:90:12", 4096, 4098)
+ar1.CaptureCardConfig_EthInit("192.168.33.42", "192.168.33.180", "12:34:56:78:90:12", 4096, 4098)
 ar1.CaptureCardConfig_Mode(1, 2, 1, 2, 3, 30)
 ar1.CaptureCardConfig_PacketDelay(25)
 --------------------------------

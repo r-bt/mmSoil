@@ -1,5 +1,5 @@
 import argparse
-from src.iwr1443 import Radar
+from src.iwr1443.radar import Radar
 import numpy as np
 from PyQt6 import QtWidgets
 from src.distance_plot import DistancePlot
@@ -37,7 +37,9 @@ def main():
     args = parser.parse_args()
 
     # Initalize the radar
-    radar = Radar(args.cfg)
+    print("initinalizing radar")
+    radar = Radar(args.cfg, host_ip="192.168.33.42")
+    print("inited radar")
 
     params = radar.params
 
@@ -56,7 +58,6 @@ def main():
         frame = msg.get("data", None)
         if frame is None:
             return
-        
         
         frame = background_subtraction(frame)
 

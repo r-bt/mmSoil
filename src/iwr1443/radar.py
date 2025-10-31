@@ -1,11 +1,11 @@
 from datetime import datetime
-from src.dcapub import DCAPub
-from src.dsp import reshape_frame
+from .dcapub import DCAPub
+from .dsp import reshape_frame
 import argparse
 
 class Radar:
 
-    def __init__(self, cfg_path: str, reshape=True):
+    def __init__(self, cfg_path: str, reshape=True, host_ip: str = "192.168.33.30"):
         """
         Initializes the radar object, starts recording, and publishes the data.
 
@@ -17,6 +17,7 @@ class Radar:
 
         self.radar = DCAPub(
             cfg=cfg_path,
+            host_ip=host_ip
         )
 
         self.config = self.radar.config
