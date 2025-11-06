@@ -47,6 +47,7 @@ class Radar:
                             self.params["n_chirps"],
                             self.params["n_samples"],
                             self.params["n_rx"],
+                            self.params["n_tx"],
                         )
 
                     msg = {
@@ -85,6 +86,7 @@ class Radar:
                                 self.params["n_chirps"],
                                 self.params["n_samples"],
                                 self.params["n_rx"],
+                                self.params["n_tx"],
                             )
 
                         return frame_data
