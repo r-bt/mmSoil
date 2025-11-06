@@ -41,10 +41,10 @@ def main():
         channels = frame.shape[2]
 
         for i in range(channels):
-            frame[:, :, i] = frame[:, :, i] * window.T
+            frame[:, :, i] = frame[:, :, i] * window
 
         # Apply a 2D fft to get range-doppler map
-        data = np.fft.fft(frame, axes=[0, 1])
+        data = np.fft.fft2(frame, axes=[0, 1])
 
         # Get range angle by applying fft along the rx axis
         rai_abs = np.fft.fft(data, axis=2)
