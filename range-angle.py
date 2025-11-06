@@ -2,7 +2,7 @@ import argparse
 from src.iwr1443.radar import Radar
 import numpy as np
 from PyQt6 import QtWidgets
-from src.distance_plot import DistancePlot
+from src.range_angle_plot import RangeAngleHeatmap
 import sys
 from scipy.fft import fft, fftfreq
 
@@ -26,14 +26,20 @@ def main():
 
     # Initalize the GUI
     app = QtWidgets.QApplication(sys.argv)
-    dist_plot = DistancePlot(params["range_res"])
-    dist_plot.resize(600, 600)
-    dist_plot.show()
+
+    heatmap = RangeAngleHeatmap(range_res=params["range_res"], angle_bins=params["n_rx"])
+    heatmap.resize(600, 600)
+    heatmap.show()
 
     def update_frame(msg):
         frame = msg.get("data", None)
         if frame is None:
             return
+        
+        padding_size=[128, 64, 32]
+
+        if padding_size is None:
+            padding_size = data.shape
         
         # Apply a hanning window to reduce spectral leakage
         window = np.hanning(frame.shape[0])[:, None] * np.hanning(frame.shape[1])[None, :]
@@ -44,14 +50,17 @@ def main():
             frame[:, :, i] = frame[:, :, i] * window
 
         # Apply a 2D fft to get range-doppler map
-        data = np.fft.fft2(frame, axes=[0, 1])
+        data = np.fft.fft2(data, s=[padding_size[0], padding_size[1]], axes=[0, 1])
 
         # Get range angle by applying fft along the rx axis
-        rai_abs = np.fft.fft(data, axis=2)
+        rai_abs = np.fft.fft(data, n=padding_size[2], axis=2)
         rai_abs = np.fft.fftshift(np.abs(rai_abs), axes=2)
         rai_abs = np.flip(rai_abs, axis=1)
 
-        print(rai_abs.shape)
+        # Average over the chirps
+        rai_avg = np.mean(rai_abs, axis=0)
+
+        print("shape: ", rai_avg.shape)
 
         # frame = background_subtraction(frame)
 
