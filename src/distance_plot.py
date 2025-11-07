@@ -46,6 +46,13 @@ class DistancePlot(QtWidgets.QMainWindow):
         self.plot_widget.setXRange(0, 6)
         self.plot_widget.setYRange(0, 10000)
 
+    def save(self):
+        """
+        Save the current plot as an image.
+        """
+        exporter = pg.exporters.ImageExporter(self.plot_widget.plotItem)
+        exporter.export("distance_plot.png")
+
 
 if __name__ == "__main__":
     # Initalize the GUI
