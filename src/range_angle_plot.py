@@ -34,7 +34,7 @@ class RangeAngleHeatmap(QtWidgets.QMainWindow):
         # Optionally scale axes to real units later
         self.angle_bins = angle_bins
 
-    def update(self, rai_map: np.ndarray):
+    def update(self, rai_map: np.ndarray, distances: np.ndarray):
         """
         Args:
             rai_map (np.ndarray): 2D array [range_bins, angle_bins].
@@ -49,8 +49,8 @@ class RangeAngleHeatmap(QtWidgets.QMainWindow):
         self.img_item.setImage(magnitude.T, autoLevels=True)
 
         # Adjust axes
-        self.plot_widget.setXRange(0, self.angle_bins)
-        self.plot_widget.setYRange(0, magnitude.shape[0])
+        self.plot_widget.setXRange(-90, 90)  # assuming angle bins correspond to -90 to +90 degrees
+        self.plot_widget.setYRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
 
 
 if __name__ == "__main__":
