@@ -1,11 +1,9 @@
 import argparse
-import queue
-import threading
 import numpy as np
 from datetime import datetime
 import os
 
-from src.radar import Radar
+from src.iwr1443.radar import Radar
 
 buffer = []
 
@@ -30,7 +28,7 @@ if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
 
     # Initialize the radar
-    radar = Radar(args.cfg)
+    radar = Radar(args.cfg, host_ip="192.168.33.42")
     radar.run_polling(cb=log)
 
     print("Saving data...")
