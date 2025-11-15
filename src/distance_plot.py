@@ -27,7 +27,7 @@ class DistancePlot(QtWidgets.QMainWindow):
             self.plot_widget.addItem(line)
 
         self.plot_widget.setLabel("bottom", "Distance (m)")
-        self.plot_widget.setLabel("left", "Intensity")
+        self.plot_widget.setLabel("left", "Intensity (dB)")
 
     def update(self, distances: np.ndarray, data: np.ndarray):
         """
@@ -37,14 +37,19 @@ class DistancePlot(QtWidgets.QMainWindow):
         if data is None:
             return
 
+        # Convert to dB scale (20 * log10 of magnitude)
+        # Add small epsilon to avoid log(0)
+        data_db = 20 * np.log10(np.abs(data) + 1e-10)
+
         if data.ndim != 2:
-            self.lines[0].setData(distances, data)
+            self.lines[0].setData(distances, data_db)
         else:
             for i in range(data.shape[1]):
-                self.lines[i].setData(distances, data[:, i])
+                self.lines[i].setData(distances, data_db[:, i])
 
         self.plot_widget.setXRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
-        self.plot_widget.setYRange(0, 10000)
+        # Fixed y-axis range for consistent viewing across frames
+        self.plot_widget.setYRange(-100, 100)
 
     def save(self):
         """
