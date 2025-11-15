@@ -35,8 +35,8 @@ def main():
             return
 
         # We expect reflectors to be at
-        expected_reflector = 1
-        bounds = 0.1 # +- 2cm
+        expected_reflector = 0.5 # expected distance in meters
+        bounds = 0.5 # +- 50cm
 
         # Perform a ZoomFFT around the expected reflector
         f1 = (expected_reflector - bounds) / c * (2 * FREQ_SLOPE)
@@ -53,7 +53,7 @@ def main():
             fft_meters,
             np.abs(Xz[0, :, :]),
         )
-        
+
         app.processEvents()
 
     # Initialize the radar
