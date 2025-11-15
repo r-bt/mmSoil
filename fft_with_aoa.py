@@ -4,7 +4,7 @@ import numpy as np
 from PyQt6 import QtWidgets
 from src.distance_plot import DistancePlot
 import sys
-from scipy.fft import fft, fftfreq, zoom_fft
+from scipy.signal import zoom_fft
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,8 +35,8 @@ def main():
             return
 
         # We expect reflectors to be at
-        expected_reflector = 10 # expect a reflector at 10cm
-        bounds = 2 # +- 2cm
+        expected_reflector = 1
+        bounds = 0.1 # +- 2cm
 
         # Perform a ZoomFFT around the expected reflector
         f1 = (expected_reflector - bounds) / c * (2 * FREQ_SLOPE)
@@ -51,7 +51,7 @@ def main():
         # Plot the data
         dist_plot.update(
             fft_meters,
-            np.abs(Xz),
+            np.abs(Xz[0, :, :]),
         )
         
         app.processEvents()
