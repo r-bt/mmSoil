@@ -2,7 +2,7 @@ import argparse
 from src.iwr1443.radar import Radar
 import numpy as np
 from PyQt6 import QtWidgets
-from src.distance_plot import RangeAngleHeatmap
+from src.range_angle_plot import RangeAngleHeatmap
 import sys
 from scipy.signal import zoom_fft
 
