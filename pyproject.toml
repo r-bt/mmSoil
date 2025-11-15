@@ -5,6 +5,7 @@ description = "Determining soil moisture content with mmWave radar"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "joblib>=1.5.2",
     "matplotlib>=3.10.7",
     "numba>=0.62.1",
     "pyqt6>=6.10.0",

@@ -45,8 +45,17 @@ class RangeAngleHeatmap(QtWidgets.QMainWindow):
         # Convert to dB for visibility
         magnitude = 20 * np.log10(np.abs(rai_map) + 1e-6)
 
-        # Update image
-        self.img_item.setImage(magnitude.T, autoLevels=True)
+        # Define bounding box: [x0, y0, width, height]
+        angle_start = -90
+        angle_end = 90
+        range_start = distances[0]
+        range_end = distances[-1]
+
+        self.img_item.setImage(
+            magnitude.T,
+            autoLevels=True,
+            rect=QtCore.QRectF(angle_start, range_start, angle_end - angle_start, range_end - range_start)
+        )
 
         # Adjust axes
         self.plot_widget.setXRange(-90, 90)  # assuming angle bins correspond to -90 to +90 degrees
