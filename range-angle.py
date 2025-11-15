@@ -6,6 +6,36 @@ from src.range_angle_plot import RangeAngleHeatmap
 import sys
 from scipy.fft import fft, fftfreq
 
+Nr = 4
+d = 0.5 # half-wavelength spacing
+
+def steering_vector(theta, Nr, d=0.5):
+    """
+    ULA steering vector in units of wavelength
+    theta: angle in radians
+    Nr: number of RX antennas
+    d: spacing in wavelengths (default 0.5)
+    """
+    n = np.arange(Nr)
+    return np.exp(-1j * 2 * np.pi * d * n * np.sin(theta))[:, None]  # (Nr,1)
+
+def mvdr_spectrum(X, angles_deg, d=0.5):
+    """
+    Compute MVDR power spectrum for a single range bin
+    X: (Nr, n_snapshots) array for this bin
+    angles_deg: array of angles to scan
+    """
+    Nr = X.shape[0]
+    R = X @ X.conj().T / X.shape[1]        # spatial covariance
+    R += 1e-3 * np.eye(Nr)                 # diagonal loading
+    Rinv = np.linalg.pinv(R)
+    
+    P = np.zeros(len(angles_deg))
+    for i, th in enumerate(angles_deg):
+        a = steering_vector(th, Nr, d)
+        denom = np.real(a.conj().T @ Rinv @ a)
+        P[i] = 1.0 / denom
+    return 10 * np.log10(P / P.max() + 1e-12)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -36,48 +66,24 @@ def main():
         if frame is None:
             return
         
-        padding_size=[128, 64, 32]
+        # Calculate the range fft
+        range_fft = np.fft.fft(frame, axis=1)           # (n_chirps, n_samp, n_rx)
+        range_fft = range_fft[:, :SAMPLES_PER_CHIRP//2, :]         # positive half
+        fft_freqs = fftfreq(SAMPLES_PER_CHIRP, 1 / SAMPLE_RATE)
+        ranges = fft_freqs * c / (2 * FREQ_SLOPE)
 
-        if padding_size is None:
-            padding_size = data.shape
-        
-        # Apply a hanning window to reduce spectral leakage
-        window = np.hanning(frame.shape[0])[:, None] * np.hanning(frame.shape[1])[None, :]
+        # Get the AoA
+        theta_scan = np.linspace(-1*np.pi, np.pi, 1000) # 1000 different thetas between -180 and +180 degrees
 
-        channels = frame.shape[2]
+        RA_map = np.zeros((len(ranges), len(theta_scan)))
+    
+        for r in range(len(ranges)):
+            X = range_fft[:, r, :].T  # shape (n_rx, n_chirps)
+            RA_map[r, :] = mvdr_spectrum(X, theta_scan  , d)
 
-        for i in range(channels):
-            frame[:, :, i] = frame[:, :, i] * window
-
-        # Apply a 2D fft to get range-doppler map
-        data = np.fft.fft2(data, s=[padding_size[0], padding_size[1]], axes=[0, 1])
-
-        # Get range angle by applying fft along the rx axis
-        rai_abs = np.fft.fft(data, n=padding_size[2], axis=2)
-        rai_abs = np.fft.fftshift(np.abs(rai_abs), axes=2)
-        rai_abs = np.flip(rai_abs, axis=1)
-
-        # Average over the chirps
-        rai_avg = np.mean(rai_abs, axis=0)
-
-        print("shape: ", rai_avg.shape)
-
-        # frame = background_subtraction(frame)
-
-        # # Get the fft of the data
-        # signal = np.mean(frame, axis=0)
-
-        # fft_result = fft(signal, axis=0)
-        # fft_freqs = fftfreq(SAMPLES_PER_CHIRP, 1 / SAMPLE_RATE)
-        # fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
-
-        # # Plot the data
-        # dist_plot.update(
-        #     fft_meters[: SAMPLES_PER_CHIRP // 2],
-        #     np.abs(fft_result[: SAMPLES_PER_CHIRP // 2, :]),
-        # )
-
-        # app.processEvents()
+        # Plot the data
+        heatmap.update(RA_map)
+        app.processEvents()
 
     # Initialize the radar
 
