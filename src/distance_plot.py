@@ -44,7 +44,7 @@ class DistancePlot(QtWidgets.QMainWindow):
                 self.lines[i].setData(distances, data[:, i])
 
         self.plot_widget.setXRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
-        self.plot_widget.setYRange(0, 10000)
+        self.plot_widget.setYRange(0, 50000)
 
     def save(self):
         """

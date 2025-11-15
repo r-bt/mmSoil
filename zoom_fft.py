@@ -75,7 +75,7 @@ def main():
         if frame is None:
             return
         
-        frame = background_subtraction(frame)
+        # frame = background_subtraction(frame)
 
         # We expect reflectors to be at
         expected_reflector = 0.5 # expected distance in meters
@@ -90,6 +90,8 @@ def main():
 
         fft_freqs = np.linspace(f1, f2, SAMPLES_PER_CHIRP, endpoint=False)
         fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
+
+        # mag_in_dbs =  power_dB = 10*np.log10(np.var(np.average(Xz, axis=0))) # power in signal, in dB so its easier to see small and large lobes at the same time
 
         # Plot 
         dist_plot.update(
