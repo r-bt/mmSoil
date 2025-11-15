@@ -37,9 +37,14 @@ class DistancePlot(QtWidgets.QMainWindow):
         if data is None:
             return
 
-        # Convert to dB scale (20 * log10 of magnitude)
-        # Add small epsilon to avoid log(0)
-        data_db = 20 * np.log10(np.abs(data) + 1e-10)
+        # Convert to dB scale relative to maximum (20 * log10 of magnitude)
+        # Normalize to max so strongest signal is at 0 dB
+        data_abs = np.abs(data)
+        max_val = np.max(data_abs)
+        if max_val > 0:
+            data_db = 20 * np.log10(data_abs / max_val)
+        else:
+            data_db = 20 * np.log10(data_abs + 1e-10)
 
         if data.ndim != 2:
             self.lines[0].setData(distances, data_db)
@@ -48,12 +53,9 @@ class DistancePlot(QtWidgets.QMainWindow):
                 self.lines[i].setData(distances, data_db[:, i])
 
         self.plot_widget.setXRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
-<<<<<<< HEAD
-        self.plot_widget.setYRange(0, 50000)
-=======
         # Fixed y-axis range for consistent viewing across frames
-        self.plot_widget.setYRange(-100, 100)
->>>>>>> b813706c5cf495733a5a315676cc2dd0d7750322
+        # Typical dB range is negative (attenuation from reference)
+        self.plot_widget.setYRange(-80, 0)
 
     def save(self):
         """
