@@ -70,7 +70,7 @@ def main():
         range_fft = np.fft.fft(frame, axis=1)           # (n_chirps, n_samp, n_rx)
         range_fft = range_fft[:, :SAMPLES_PER_CHIRP//2, :]         # positive half
         fft_freqs = fftfreq(SAMPLES_PER_CHIRP, 1 / SAMPLE_RATE)
-        ranges = fft_freqs * c / (2 * FREQ_SLOPE)
+        ranges = fft_freqs[: SAMPLES_PER_CHIRP // 2] * c / (2 * FREQ_SLOPE)
 
         # Get the AoA
         theta_scan = np.linspace(-1*np.pi, np.pi, 1000) # 1000 different thetas between -180 and +180 degrees
