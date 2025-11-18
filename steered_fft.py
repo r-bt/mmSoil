@@ -82,7 +82,7 @@ def main():
         fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
 
         # Find the range bin with the maximum value
-        max_idx = np.argmax(np.abs(Xz), axis=0)
+        max_idx = np.argmax(np.abs(Xz.T), axis=0)[0]
 
         # Plot the data
         dist_plot.update(
