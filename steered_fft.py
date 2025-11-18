@@ -76,7 +76,8 @@ def main():
         f1 = (expected_reflector - bounds) / c * (2 * FREQ_SLOPE)
         f2 = (expected_reflector + bounds) / c * (2 * FREQ_SLOPE)
 
-        Xz = zoom_fft(frame_weighted, [f1, f2], fs=SAMPLE_RATE, axis=1) # Across the samples per chirp axis
+        # Xz = zoom_fft(frame_weighted, [f1, f2], fs=SAMPLE_RATE, axis=1) # Across the samples per chirp axis
+        Xz = fft(frame_weighted, axis=1)
 
         fft_freqs = np.linspace(f1, f2, SAMPLES_PER_CHIRP, endpoint=False)
         fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
