@@ -29,7 +29,7 @@ class DistancePlot(QtWidgets.QMainWindow):
         self.plot_widget.setLabel("bottom", "Distance (m)")
         self.plot_widget.setLabel("left", "Intensity (dB)")
 
-    def update(self, distances: np.ndarray, data: np.ndarray):
+    def update(self, distances: np.ndarray, data: np.ndarray, vertical_lines: list = []):
         """
         Args:
             data_list (np.ndarray): 2D array of (n_distances, n_receivers).
@@ -40,11 +40,7 @@ class DistancePlot(QtWidgets.QMainWindow):
         # Convert to dB scale relative to maximum (20 * log10 of magnitude)
         # Normalize to max so strongest signal is at 0 dB
         data_abs = np.abs(data)
-        max_val = np.max(data_abs)
-        if max_val > 0:
-            data_db = 20 * np.log10(data_abs / max_val)
-        else:
-            data_db = 20 * np.log10(data_abs + 1e-10)
+        data_db = 20 * np.log10(data_abs + 1e-10)
 
         if data.ndim != 2:
             self.lines[0].setData(distances, data_db)
@@ -52,10 +48,24 @@ class DistancePlot(QtWidgets.QMainWindow):
             for i in range(data.shape[1]):
                 self.lines[i].setData(distances, data_db[:, i])
 
+        # Remove old vertical lines
+        for item in self.plot_widget.items():
+            if isinstance(item, pg.InfiniteLine):
+                self.plot_widget.removeItem(item)
+
+        # Plot the vertical lines if any
+        for vline in vertical_lines:
+            vline_item = pg.InfiniteLine(
+                pos=vline,
+                angle=90,
+                pen=pg.mkPen(color=(200, 200, 200), style=QtCore.Qt.PenStyle.DashLine),
+            )
+            self.plot_widget.addItem(vline_item)
+
         self.plot_widget.setXRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
         # Fixed y-axis range for consistent viewing across frames
         # Typical dB range is negative (attenuation from reference)
-        self.plot_widget.setYRange(-80, 0)
+        self.plot_widget.setYRange(0, 100)
 
     def save(self):
         """
