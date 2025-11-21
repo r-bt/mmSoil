@@ -23,10 +23,10 @@ NUM_RX = 4
 START_FREQ = 77 -- GHz
 IDLE_TIME = 138 -- us
 RAMP_END_TIME = 62 -- us
-ADC_START_TIME = 6 --us
+ADC_START_TIME = 7 --us
 FREQ_SLOPE = 60.012 -- MHz/us
-ADC_SAMPLES = 256
-SAMPLE_RATE = 10000 -- ksps
+ADC_SAMPLES = 128
+SAMPLE_RATE = 2500 -- ksps
 RX_GAIN = 30 -- dB
 
 -- ChirpConfig
@@ -38,8 +38,8 @@ RX_GAIN = 30 -- dB
 START_CHIRP_TX = 0
 END_CHIRP_TX = 0 -- 2 for 1843 
 NUM_FRAMES = 0 -- Set this to 0 to continuously stream data
-CHIRP_LOOPS = 48 -- 
-PERIODICITY = 10 -- ms
+CHIRP_LOOPS = 128 -- 
+PERIODICITY = 50 -- ms
 
 -- CHIRP DURATION = (IDLE_TIME + RAMP_END_TIME) * 1e-6
 -- CHIRP_SAMPLE_RATE = 1 / CHIRP_DURATION

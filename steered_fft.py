@@ -10,7 +10,7 @@ from scipy.signal import zoom_fft, find_peaks
 Nr = 4
 d = 0.5 # half-wavelength spacing
 
-TOP_TO_FOIL_DISTANCE = 0.07 # 10cm
+TOP_TO_FOIL_DISTANCE = 0.11 # 10cm
 
 def background_subtraction(frame):
     after_subtraction = np.zeros_like(frame)
