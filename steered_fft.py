@@ -5,10 +5,12 @@ from PyQt6 import QtWidgets
 from src.distance_plot import DistancePlot
 import sys
 from scipy.fft import fft, fftfreq
-from scipy.signal import zoom_fft
+from scipy.signal import zoom_fft, find_peaks
 
 Nr = 4
 d = 0.5 # half-wavelength spacing
+
+TOP_TO_FOIL_DISTANCE = 0.07 # 10cm
 
 def background_subtraction(frame):
     after_subtraction = np.zeros_like(frame)
@@ -46,6 +48,7 @@ def main():
     c = 3e8  # speed of light - m/s
     SAMPLES_PER_CHIRP = params["n_samples"]  # adc number of samples per chirp
     SAMPLE_RATE = params["sample_rate"]  # digout sample rate in Hz
+    
     FREQ_SLOPE = params["chirp_slope"]  # frequency slope in Hz (/s)
 
     # Initalize the GUI
@@ -69,27 +72,55 @@ def main():
         frame_weighted = w.conj().T @ frame  # apply weights
 
         # We expect reflectors to be at
-        expected_reflector = 0.5 # expected distance in meters
-        bounds = 0.5 # +- 50cm
+        # expected_reflector = 0.4 # expected distance in meters
+        # bounds = 0.1 # +- 50cm
+        d1 = 0.3
+        d2 = 0.65
 
         # Perform a ZoomFFT around the expected reflector
-        f1 = (expected_reflector - bounds) / c * (2 * FREQ_SLOPE)
-        f2 = (expected_reflector + bounds) / c * (2 * FREQ_SLOPE)
+        f1 = (d1) / c * (2 * FREQ_SLOPE)
+        f2 = (d2) / c * (2 * FREQ_SLOPE)
 
-        # Xz = zoom_fft(frame_weighted, [f1, f2], fs=SAMPLE_RATE, axis=1) # Across the samples per chirp axis
-        Xz = fft(frame_weighted, axis=1)
+        Xz = zoom_fft(frame_weighted, [f1, f2], fs=SAMPLE_RATE, axis=1) # Across the samples per chirp axis
+        Xz = Xz[0]
 
         fft_freqs = np.linspace(f1, f2, SAMPLES_PER_CHIRP, endpoint=False)
         fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
 
         # Find the range bin with the maximum value
-        max_idx = np.argmax(np.abs(Xz.T), axis=0)[0]
+        peaks, props = find_peaks(np.abs(Xz), height=30, prominence=0, distance=3)
+        top_2_peaks = peaks[np.argsort(props["prominences"])[-2:]]
+
+        if len(top_2_peaks) < 2:
+            dist_plot.update(
+                fft_meters,
+                np.abs(Xz),
+                vertical_lines=[]
+            )
+            app.processEvents()
+            return
+
+        peaks_in_meters = [fft_meters[peak] for peak in top_2_peaks]
+
+        # Convert the peaks into a time difference
+        times = [fft_freqs[idx] * 1/(2 * FREQ_SLOPE) for idx in np.sort(top_2_peaks)]
+        delta_T = times[1] - times[0]
+
+        print(delta_T)
+
+        # # Calculate the dielectric permittivity
+        # epsilon = ((c * delta_T) / TOP_TO_FOIL_DISTANCE) ** 2
+
+        # # Calculate the VWC
+        # VWC = -5.3*10**(-2) + 2.92*10**(-2)*epsilon - 5.5*10**(-4)*epsilon**2 + 4.3*10**(-6)*epsilon**3
+
+        # print(VWC)
 
         # Plot the data
         dist_plot.update(
             fft_meters,
-            np.abs(Xz.T),
-            vertical_lines=[fft_meters[max_idx]],
+            np.abs(Xz),
+            vertical_lines=peaks_in_meters
         )
 
         app.processEvents()
