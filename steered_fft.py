@@ -40,7 +40,7 @@ def main():
 
     # Initalize the radar
     print("initinalizing radar")
-    radar = Radar(args.cfg, host_ip="192.168.33.42")
+    radar = Radar(args.cfg, host_ip="192.168.33.30")
     print("inited radar")
 
     params = radar.params
@@ -74,8 +74,8 @@ def main():
         # We expect reflectors to be at
         # expected_reflector = 0.4 # expected distance in meters
         # bounds = 0.1 # +- 50cm
-        d1 = 0.3
-        d2 = 0.65
+        d1 = 0.2
+        d2 = 0.5
 
         # Perform a ZoomFFT around the expected reflector
         f1 = (d1) / c * (2 * FREQ_SLOPE)
@@ -88,17 +88,33 @@ def main():
         fft_meters = fft_freqs * c / (2 * FREQ_SLOPE)
 
         # Find the range bin with the maximum value
-        peaks, props = find_peaks(np.abs(Xz), height=30, prominence=0, distance=3)
-        top_2_peaks = peaks[np.argsort(props["prominences"])[-2:]]
+        peaks, props = find_peaks(np.abs(Xz), height=30, prominence=10, distance=3)
 
-        if len(top_2_peaks) < 2:
+        if not np.any(peaks):
+            return
+        
+        heights = props["peak_heights"]
+
+        highest_peak = peaks[np.argmax(heights)]
+
+        # Filter to peaks to the right
+        right_mask = peaks > highest_peak
+        
+        if not np.any(right_mask):
             dist_plot.update(
                 fft_meters,
                 np.abs(Xz),
-                vertical_lines=[]
+                vertical_lines=[fft_meters[highest_peak]]
             )
             app.processEvents()
             return
+        
+        right_peaks = peaks[right_mask]
+        right_heights = heights[right_mask]
+
+        next_peak = right_peaks[np.argmax(right_heights)]
+        
+        top_2_peaks = [highest_peak, next_peak]
 
         peaks_in_meters = [fft_meters[peak] for peak in top_2_peaks]
 
