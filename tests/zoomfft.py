@@ -8,9 +8,14 @@ t = np.linspace(0, T, int(fs*T), endpoint=False)
 
 x = (
     np.sin(2*np.pi*1*t) +
+    np.sin(2*np.pi*6*t) +
     np.sin(2*np.pi*10*t) +
+    np.sin(2*np.pi*12*t) +
     np.sin(2*np.pi*100*t)
 )
+
+# Add some noise
+x += 0.5 * np.random.randn(len(t))
 
 # zoom settings
 f1, f2 = 5, 15               # 10 Hz ± 5 Hz
