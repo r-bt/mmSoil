@@ -34,7 +34,6 @@ def logging_thread():
             buffer.append(data)
             log_queue.task_done()
         except:
-            # Queue is empty, continue checking
             continue
 
 
@@ -55,7 +54,7 @@ if __name__ == "__main__":
 
     try:
         # Initialize the radar
-        radar = Radar(args.cfg, host_ip="192.168.33.42")
+        radar = Radar(args.cfg)
         radar.run_polling(cb=log)
     finally:
         # Signal the logging thread to stop and wait for it to finish

@@ -1,11 +1,11 @@
 import argparse
-from src.iwr1443.radar import Radar
 import numpy as np
 from PyQt6 import QtWidgets
 from src.distance_plot import DistancePlot
 import sys
 from scipy.fft import fft, fftfreq
 from scipy.signal import zoom_fft, find_peaks
+from src.iwr1443.radar_config import RadarConfig
 
 Nr = 4
 d = 0.5 # half-wavelength spacing
@@ -36,14 +36,11 @@ def w_mvdr(theta, X):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cfg", type=str, required=True)
+    parser.add_argument("--data", type=str, required=True, help="Path to the .bin file")
     args = parser.parse_args()
 
-    # Initalize the radar
-    print("initinalizing radar")
-    radar = Radar(args.cfg, host_ip="192.168.33.30")
-    print("inited radar")
-
-    params = radar.params
+    # Initalize the radar config
+    params = RadarConfig(args.cfg).get_params()
 
     c = 3e8  # speed of light - m/s
     SAMPLES_PER_CHIRP = params["n_samples"]  # adc number of samples per chirp
@@ -56,6 +53,11 @@ def main():
     dist_plot = DistancePlot(params["range_res"])
     dist_plot.resize(600, 600)
     dist_plot.show()
+
+    # Load the data from the .bin file
+    fid = open(args.data, 'rb')
+    raw_data = np.fromfile(fid, dtype='<i2')  # Little-endian int16
+    fid.close()
 
     def update_frame(msg):
         frame = msg.get("data", None)

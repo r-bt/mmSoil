@@ -25,8 +25,8 @@ IDLE_TIME = 138 -- us
 RAMP_END_TIME = 62 -- us
 ADC_START_TIME = 7 --us
 FREQ_SLOPE = 60.012 -- MHz/us
-ADC_SAMPLES = 128
-SAMPLE_RATE = 2500 -- ksps
+ADC_SAMPLES = 384
+SAMPLE_RATE = 7000 -- ksps
 RX_GAIN = 30 -- dB
 
 -- ChirpConfig
@@ -88,7 +88,7 @@ ar1.FrameConfig(START_CHIRP_TX, END_CHIRP_TX, NUM_FRAMES, CHIRP_LOOPS, PERIODICI
 
 -------- ETHERNET STUFF --------
 ar1.SelectCaptureDevice("DCA1000")
-ar1.CaptureCardConfig_EthInit("192.168.33.42", "192.168.33.180", "12:34:56:78:90:12", 4096, 4098)
+ar1.CaptureCardConfig_EthInit("192.168.33.30", "192.168.33.180", "12:34:56:78:90:12", 4096, 4098)
 ar1.CaptureCardConfig_Mode(1, 2, 1, 2, 3, 30)
 ar1.CaptureCardConfig_PacketDelay(25)
 --------------------------------

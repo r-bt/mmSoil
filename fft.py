@@ -38,7 +38,7 @@ def main():
 
     # Initalize the radar
     print("initinalizing radar")
-    radar = Radar(args.cfg, host_ip="192.168.33.42")
+    radar = Radar(args.cfg)
     print("inited radar")
 
     params = radar.params
@@ -59,7 +59,7 @@ def main():
         if frame is None:
             return
         
-        frame = background_subtraction(frame)
+        # frame = background_subtraction(frame)
 
         # Get the fft of the data
         signal = np.mean(frame, axis=0)
@@ -71,7 +71,7 @@ def main():
         # Plot the data
         dist_plot.update(
             fft_meters[: SAMPLES_PER_CHIRP // 2],
-            np.abs(fft_result[: SAMPLES_PER_CHIRP // 2, :]),
+            np.abs(fft_result[: SAMPLES_PER_CHIRP // 2, 0]),
         )
 
         app.processEvents()

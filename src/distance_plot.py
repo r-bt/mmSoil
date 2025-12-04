@@ -39,33 +39,33 @@ class DistancePlot(QtWidgets.QMainWindow):
 
         # Convert to dB scale relative to maximum (20 * log10 of magnitude)
         # Normalize to max so strongest signal is at 0 dB
-        data_abs = np.abs(data)
-        data_db = 20 * np.log10(data_abs + 1e-10)
+        # data_abs = np.abs(data)
+        # data_db = 20 * np.log10(data_abs + 1e-10)
 
         if data.ndim != 2:
-            self.lines[0].setData(distances, data_db)
+            self.lines[0].setData(distances, np.abs(data))
         else:
             for i in range(data.shape[1]):
-                self.lines[i].setData(distances, data_db[:, i])
+                self.lines[i].setData(distances, np.abs(data)[:, i])
 
         # Remove old vertical lines
-        for item in self.plot_widget.items():
-            if isinstance(item, pg.InfiniteLine):
-                self.plot_widget.removeItem(item)
+        # for item in self.plot_widget.items():
+        #     if isinstance(item, pg.InfiniteLine):
+        #         self.plot_widget.removeItem(item)
 
-        # Plot the vertical lines if any
-        for vline in vertical_lines:
-            vline_item = pg.InfiniteLine(
-                pos=vline,
-                angle=90,
-                pen=pg.mkPen(color=(200, 200, 200), style=QtCore.Qt.PenStyle.DashLine),
-            )
-            self.plot_widget.addItem(vline_item)
+        # # Plot the vertical lines if any
+        # for vline in vertical_lines:
+        #     vline_item = pg.InfiniteLine(
+        #         pos=vline,
+        #         angle=90,
+        #         pen=pg.mkPen(color=(200, 200, 200), style=QtCore.Qt.PenStyle.DashLine),
+        #     )
+        #     self.plot_widget.addItem(vline_item)
 
-        self.plot_widget.setXRange(np.min(distances) - 0.1, np.max(distances) + 0.1)
+        self.plot_widget.setXRange(0, 2)
         # Fixed y-axis range for consistent viewing across frames
         # Typical dB range is negative (attenuation from reference)
-        self.plot_widget.setYRange(0, 100)
+        self.plot_widget.setYRange(0, 200000)
 
     def save(self):
         """
