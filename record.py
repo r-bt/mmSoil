@@ -2,19 +2,40 @@ import argparse
 import numpy as np
 from datetime import datetime
 import os
+import threading
+from queue import Queue
 
 from src.iwr1443.radar import Radar
 
 buffer = []
+log_queue = Queue()
+logging_active = threading.Event()
+logging_active.set()
 
 
 def log(msg):
     """
-    Callback function to log the data to the csv file
+    Callback function to quickly enqueue data without blocking packet reception
+    """
+    # Non-blocking queue put - just adds to queue and returns immediately
+    log_queue.put(msg["data"])
+
+
+def logging_thread():
+    """
+    Background thread that processes the queue and appends to buffer
     """
     global buffer
-
-    buffer.append(msg["data"])
+    
+    while logging_active.is_set() or not log_queue.empty():
+        try:
+            # Get data from queue with timeout to allow checking the active flag
+            data = log_queue.get(timeout=0.1)
+            buffer.append(data)
+            log_queue.task_done()
+        except:
+            # Queue is empty, continue checking
+            continue
 
 
 if __name__ == "__main__":
@@ -27,13 +48,28 @@ if __name__ == "__main__":
     filename = f"data/radar_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.npz"
     os.makedirs("data", exist_ok=True)
 
-    # Initialize the radar
-    radar = Radar(args.cfg, host_ip="192.168.33.42")
-    radar.run_polling(cb=log)
+    # Start the background logging thread
+    logger = threading.Thread(target=logging_thread, daemon=True)
+    logger.start()
+    print("[INFO] Logging thread started")
 
-    print("Saving data...")
+    try:
+        # Initialize the radar
+        radar = Radar(args.cfg, host_ip="192.168.33.42")
+        radar.run_polling(cb=log)
+    finally:
+        # Signal the logging thread to stop and wait for it to finish
+        print("\n[INFO] Stopping data capture...")
+        logging_active.clear()
+        
+        # Wait for the queue to be fully processed
+        print("[INFO] Processing remaining queued data...")
+        log_queue.join()
+        logger.join(timeout=5.0)
+        
+        print(f"[INFO] Saving {len(buffer)} frames...")
 
-    # Save the data
-    np.savez_compressed(filename, data=np.stack(buffer))
+        # Save the data
+        np.savez_compressed(filename, data=np.stack(buffer))
 
-    print(f"Saved data to {filename}")
+        print(f"[INFO] Saved data to {filename}")
