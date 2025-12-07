@@ -62,7 +62,7 @@ class DistancePlot(QtWidgets.QMainWindow):
         #     )
         #     self.plot_widget.addItem(vline_item)
 
-        self.plot_widget.setXRange(0, 2)
+        self.plot_widget.setXRange(0, 0.75)
         # Fixed y-axis range for consistent viewing across frames
         # Typical dB range is negative (attenuation from reference)
         self.plot_widget.setYRange(0, 200000)

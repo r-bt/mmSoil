@@ -16,7 +16,7 @@ PKT_LOG_PATH  = "C:\\Users\\mmwave\\Documents\\data\\pktlogfile.txt"
 
 -------- VERY IMPORTANT AND SERIOUS RADAR SETTINGS --------
 -- General
-NUM_TX = 3
+NUM_TX = 1
 NUM_RX = 4
 
 -- ProfileConfig
